@@ -1,0 +1,86 @@
+name: set-openwhisk-alarm
+
+# Controls when the action will run.
+on:
+  push:
+    paths:
+      - '**.json'
+
+jobs: 
+  generate-json:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout with branch
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      
+      # Find the changed json file
+      - name: Get specific changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v17.2
+        with:
+          files: |
+            *.json
+      
+      - name: Check if this event is trigger by a deleted commit
+        if: steps.changed-files.outputs.any_deleted == 'true'
+        run:
+          echo "DEL_STATUS=true" >> $GITHUB_ENV
+      
+      # Install ibmcloud cli and set ibmcloud api (target can be set with 'ibmcloud target -o <value> -s <value>' as well)
+      - name: ibmcloud installation
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y curl jq
+          sudo curl -fsSL https://clis.cloud.ibm.com/install/linux | sh
+          ibmcloud login -u ${{ secrets.IBMCLOUD_USERNAME }} -p ${{ secrets.IBMCLOUD_PASSWORD }} -r ${{ secrets.IBMCLOUD_REGION }}
+          ibmcloud target --cf
+      
+      # Install openwhisk and openwhisk-package-alarms library
+      - name: openwhisk installation
+        run: |
+          ibmcloud plugin install Cloud-Functions
+          ibmcloud wsk package get /whisk.system/alarms --summary
+      
+      - name: Delete the alarm if it existed
+        continue-on-error: true
+        run: |
+          for file in ${{ steps.changed-files.outputs.all_modified_files }}; do
+            filetype=".json"
+            filename=${file//$filetype/}
+            alarm_name=$filename
+            ibmcloud wsk trigger delete ${alarm_name}
+          done
+      
+      - name: Delete the rule if it existed
+        continue-on-error: true
+        run: |
+          for file in ${{ steps.changed-files.outputs.all_modified_files }}; do
+            filetype=".json"
+            filename=${file//$filetype/}
+            alarm_name=$filename
+            ibmcloud wsk rule delete ${alarm_name}_rule
+          done
+      
+      - name: Set variables from all pushed files and Set Openwhisk alarm
+        if: ${{ env.DEL_STATUS != 'true' }}
+        run: |
+          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+            filetype=".json"
+            filename=${file//$filetype/}
+            alarm_name=$filename
+            forecast_code=$(jq -r '."forecast_code"' ./$filename.json)
+            config_set=$(jq -r '."config_set"' ./$filename.json)
+            configure_run=$(jq -r '."configure_run"' ./$filename.json)
+            function=$(jq -r '."function"' ./$filename.json)
+            use_https=$(jq -r '."use_https"' ./$filename.json)
+            aws_default_region=$(jq -r '."aws_default_region"' ./$filename.json)
+            aws_s3_endpoint=$(jq -r '."aws_s3_endpoint"' ./$filename.json)
+            schedule=$(jq -r '."schedule"' ./$filename.json)
+            payload="{\"forecast_code\":\"${forecast_code}\",\"config_set\":\"${config_set}\",\"function\":\"${function}\",\"configure_run\":\"${configure_run}\",\"use_https\":\"${use_https}\",\"aws_default_region\":\"${aws_default_region}\",\"aws_s3_endpoint\":\"${aws_s3_endpoint}\",\"sim_name\":\"${sim_name}\",\"aws_access_key_ID\":\"${{ secrets.AWS_ACCESS_KEY_ID}}\",\"aws_secret_access_key\":\"${{ secrets.AWS_SECRET_ACCESS_KEY}}\"}"
+            ibmcloud wsk trigger create $alarm_name --feed /whisk.system/alarms/alarm --param cron "${schedule}"  --param trigger_payload ${payload}
+            ibmcloud wsk rule create ${alarm_name}_rule $alarm_name flare
+          done
