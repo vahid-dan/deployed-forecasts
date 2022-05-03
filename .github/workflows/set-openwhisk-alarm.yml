@@ -27,7 +27,7 @@ jobs:
 
       - name: Set up mode
         run:
-          echo "MODE=${secrets.WSK_MODE}" >> $GITHUB_ENV
+          echo "MODE=${{ secrets.WSK_MODE }}" >> $GITHUB_ENV
 
       - name: Check if this event is trigger by a deleted commit
         if: steps.changed-files.outputs.any_deleted == 'true'
