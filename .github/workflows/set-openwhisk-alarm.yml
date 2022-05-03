@@ -59,7 +59,7 @@ jobs:
           sudo mv ./wsk /usr/local/bin/wsk
           wsk property set --apihost ${{ secrets.WSK_API }}
           wsk property set --auth ${{ secrets.WSK_AUTH }}
-          wsk package get /whisk.system/alarms --summary
+          wsk -i package get /whisk.system/alarms --summary
 
       - name: Delete the alarm if it existed
         continue-on-error: true
