@@ -6,5 +6,5 @@
   "use_https": "TRUE",
   "aws_default_region": "s3",
   "aws_s3_endpoint": "flare-forecast.org",
-  "schedule": "*/30 * * * *"
+  "schedule": "*/10 * * * *"
 }
