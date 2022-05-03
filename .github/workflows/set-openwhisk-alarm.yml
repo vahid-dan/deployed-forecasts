@@ -24,14 +24,16 @@ jobs:
         with:
           files: |
             *.json
+
       - name: Check if this event is trigger by a deleted commit
         if: steps.changed-files.outputs.any_deleted == 'true'
         run:
           echo "DEL_STATUS=true" >> $GITHUB_ENV
+          echo "MODE=${secrets.WSK_MODE}" >> $GITHUB_ENV
 
       # Install ibmcloud cli and set ibmcloud api (target can be set with 'ibmcloud target -o <value> -s <value>' as well)
       - name: ibmcloud installation
-        if: ${{ secrets.WSK_MODE }} == 'ibmcloud'
+        if: ${{ secrets.WSK_MODE == 'ibmcloud' }}
         run: |
           echo "PREFIX=ibmcloud" >> $GITHUB_ENV
           sudo apt-get update
@@ -41,9 +43,10 @@ jobs:
           ibmcloud target --cf
           ibmcloud plugin install Cloud-Functions
           ibmcloud wsk package get /whisk.system/alarms --summary
+
       # Install openwhisk on own server
       - name: openwhisk installation
-        if: ${{ secrets.WSK_MODE }} == 'openwhisk'
+        if: ${{ secrets.WSK_MODE == 'openwhisk' }}
         run: |
           sudo apt-get update
           sudo apt-get install -y wget jq
@@ -52,6 +55,7 @@ jobs:
           sudo chmod +x wsk
           wsk property set --apihost ${{ secrets.WSK_API }}
           wsk property set --auth ${{ secrets.WSK_AUTH }}
+
       - name: Delete the alarm if it existed
         continue-on-error: true
         run: |
@@ -61,6 +65,7 @@ jobs:
             alarm_name=$filename
             ${{ env.PREFIX }} wsk trigger delete ${alarm_name}
           done
+
       - name: Delete the rule if it existed
         continue-on-error: true
         run: |
@@ -70,6 +75,7 @@ jobs:
             alarm_name=$filename
             ${{ env.PREFIX }} wsk rule delete ${alarm_name}_rule
           done
+
       - name: Set variables from all pushed files and Set Openwhisk alarm
         if: ${{ env.DEL_STATUS != 'true' }}
         run: |
