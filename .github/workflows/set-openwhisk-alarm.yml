@@ -33,7 +33,6 @@ jobs:
         if: steps.changed-files.outputs.any_deleted == 'true'
         run:
           echo "DEL_STATUS=true" >> $GITHUB_ENV
-          echo "MODE=${secrets.WSK_MODE}" >> $GITHUB_ENV
 
       # Install ibmcloud cli and set ibmcloud api (target can be set with 'ibmcloud target -o <value> -s <value>' as well)
       - name: ibmcloud installation
