@@ -98,5 +98,5 @@ jobs:
             schedule=$(jq -r '."schedule"' ./$filename.json)
             payload="{\"forecast_code\":\"${forecast_code}\",\"config_set\":\"${config_set}\",\"function\":\"${function}\",\"configure_run\":\"${configure_run}\",\"use_https\":\"${use_https}\",\"aws_default_region\":\"${aws_default_region}\",\"aws_s3_endpoint\":\"${aws_s3_endpoint}\",\"sim_name\":\"${sim_name}\",\"aws_access_key_ID\":\"${{ secrets.AWS_ACCESS_KEY_ID}}\",\"aws_secret_access_key\":\"${{ secrets.AWS_SECRET_ACCESS_KEY}}\"}"
             ${{ env.PREFIX }} wsk -i trigger create $alarm_name --feed /whisk.system/alarms/alarm --param cron "${schedule}"  --param trigger_payload ${payload}
-            ${{ env.PREFIX }} wsk -i rule create ${alarm_name}_rule $alarm_name /FLARE/flare
+            ${{ env.PREFIX }} wsk -i rule create ${alarm_name}_rule $alarm_name flare
           done
