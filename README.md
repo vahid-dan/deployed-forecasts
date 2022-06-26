@@ -101,9 +101,7 @@ use_s3: TRUE
 
 3- Now you can apply your desired changes to the rest of the codebase and tweak the forecast parameters in the configuration files.
 
-4- Fork https://github.com/FLARE-forecast/deployed-forecasts repository into your GitHub account.
-
-5- Create a new JSON file in your newly forked "deployed-forecasts" repository, `fcre-2021.json`, for instance, and add the following content and modify it to reflect your desired retroactive forecast run. `number_of_runs` is the duration of the forecast period in days plus the cold start days.
+4- Create a new JSON file, `fcre-2021.json`, for instance, and add the following content and modify it to reflect your desired retroactive forecast run. `number_of_runs` is the duration of the forecast period in days plus the cold start days.
 
 ```JSON
 {
@@ -120,6 +118,6 @@ use_s3: TRUE
 }
 ```
 
-6- Send a pull request to https://github.com/FLARE-forecast/deployed-forecasts. A moderator will verify your JSON file and if everything is alright, merge the pull request. Then, the retroactive run should start shortly.
+5- Send the JSON file to the CIBR team. A moderator will verify your JSON file and if everything is alright, the retroactive run should start shortly.
 
-7- The outputs of the retroactive run will start to show up in the flare-forecast S3 storage as soon as they are generated. For example, for FCRE, the forecasts are located at `forecasts/fcre`. It may take a while before all the outputs for the whole specified period is ready.
+6- The outputs of the retroactive run will start to show up in the flare-forecast S3 storage as soon as they are generated. For example, for FCRE, the forecasts are located at `forecasts/fcre`. It may take a while before all the outputs for the whole specified period is ready.
