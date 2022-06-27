@@ -85,7 +85,7 @@ To run lake forecasts in a period in the past, follow these steps:
 
 For instance:
 
-```JSON
+```YAML
 restart_file: .na
 start_datetime: 2020-12-01 00:00:00
 end_datetime: .na
