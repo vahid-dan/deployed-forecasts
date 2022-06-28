@@ -101,15 +101,15 @@ use_s3: TRUE
 
 3- Now you can apply your desired changes to the rest of the codebase and tweak the forecast parameters in the configuration files.
 
-4- Create a new JSON file, `fcre-2021.json`, for instance, and add the following content and modify it to reflect your desired retroactive forecast run. `number_of_runs` is the duration of the forecast period in days plus the cold start days.
+4- Create a new JSON file, `fcre-2021.json`, for instance, and add the following content and modify it to reflect your desired retroactive forecast run. `number_of_runs` is the duration of the forecast period in days plus the cold start days. `forecast_code_branch` and `forecast_code_commit` are optional and you may want to leave them blank.
 
 ```JSON
 {
   "forecast_code": "https://github.com/vahid-dan/FCRE-forecast-code",
-  "forecast_code_branch": "",
-  "forecast_code_commit": "",
+  "forecast_code_branch": "main",
+  "forecast_code_commit": "ad1e68a91e3ec4acd8af8a71eaf84a3a34740079",
   "config_set": "default",
-  "function": "1",
+  "function": "0",
   "configure_run": "configure_run.yml",
   "use_https": "TRUE",
   "aws_default_region": "s3",
@@ -118,6 +118,6 @@ use_s3: TRUE
 }
 ```
 
-5- Send the JSON file to the CIBR team. A moderator will verify your JSON file and if everything is alright, the retroactive run should start shortly.
+5- Send the JSON file to Yun-Jung via email (y.ku at ufl dot edu). She will verify your JSON file and get back to you with more information about the retroactive run start time.
 
 6- The outputs of the retroactive run will start to show up in the flare-forecast S3 storage as soon as they are generated. For example, for FCRE, the forecasts are located at `forecasts/fcre`. It may take a while before all the outputs for the whole specified period is ready.
